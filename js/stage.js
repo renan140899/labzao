@@ -5,7 +5,7 @@ var stageState = {
     aceleracaoAndar: 1250,
     aceleracaoAndarFreio: 1750,
     velocidadeAndarMax: 500,
-    gravidadeBlocos: 0,
+    gravidadeBlocos: 50,
     score: 0,
 
     create: function () {
@@ -110,8 +110,8 @@ var stageState = {
             this.horaProximoBloco = agora + 500 + (1000 * Math.random());
             this.aparecerBloco();
         }
-
-        this.gravidadeBlocos += 0.4;
+        this.score +=0.05;
+        this.gravidadeBlocos += 0.01;
 
         this.atualizarPosicaoPlayer();
 
@@ -135,9 +135,20 @@ var stageState = {
     },
 
     colisaoBloco: function (player, bloco) {
+      this.gravidadeBlocos = 50;
+      this.score = 0;
+      game.state.start('end');
 
-        game.state.start('end');
+    },
+    render: function () {
+      var txtscore = game.add.text(50, 30, 'score: ', {
+              font: '13px emulogic',
+              fill: '#fff'
+          });
+          txtscore.anchor.set(0.5);
 
-    }
+    game.debug.text(parseInt(this.score), 100, 33);
+
+}
 
 };
