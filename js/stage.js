@@ -1,6 +1,6 @@
 var stageState = {
     player: null,
-    blocks: null,
+    grupoBlocos: null,
     horaProximoBloco: 0,
     aceleracaoAndar: 1250,
     aceleracaoAndarFreio: 1750,
@@ -8,6 +8,7 @@ var stageState = {
     gravidadeBlocos: 0,
 
     create: function () {
+
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         game.add.tileSprite(0, 0, 800, 600, "bg");
@@ -19,7 +20,7 @@ var stageState = {
         this.player.body.collideWorldBounds = true;
         this.player.animations.add("esquerda", [0, 1, 2, 3], 12, true);
         this.player.animations.add("parado", [4], 1, true);
-        this.player.animations.add("direita", [5, 6, 7, 8], 12, true);
+        this.player.animations.add("direita", [5, 6, 7], 12, true);
         this.player.animations.play("parado");
 
         // Estamos criando um atributo novo (o JavaScript permite isso)
@@ -28,7 +29,10 @@ var stageState = {
         this.player.body.maxVelocity.x = this.velocidadeAndarMax;
         this.player.body.maxVelocity.y = this.velocidadePuloMax;
 
-        this.blocks = game.add.physicsGroup();
+        this.grupoBlocos = game.add.group();
+        this.grupoBlocos.enableBody = true;
+        //this.grupoBlocos.createMultiple(15, 'block');
+        game.physics.arcade.enable(this.grupoBlocos);
     },
 
     atualizarPosicaoPlayer: function () {
@@ -109,22 +113,29 @@ var stageState = {
 
         this.atualizarPosicaoPlayer();
 
-        game.physics.arcade.collide(this.player, this.blocks, this.collisionHandler, null, this);
+        game.physics.arcade.overlap(this.player, this.grupoBlocos, this.colisaoBloco, null, this);
     },
+
+
     aparecerBloco: function () {
+
         var x = Math.floor(Math.random() * (window.innerWidth - 0 + 1)) + 0;
         var y = -50;
 
-        this.blocks = game.add.sprite(x, y, 'block', this);
-        game.physics.enable(this.blocks, Phaser.Physics.ARCADE);
-        this.blocks.body.gravity.y = this.gravidadeBlocos;
+        var bloco = this.grupoBlocos.create(x, y, 'block');
+
+        game.physics.arcade.enable(bloco);
+        bloco.body.enable = true;
+        bloco.anchor.x = 0.5;
+        bloco.anchor.y = 0.5;
+        bloco.body.gravity.y = this.gravidadeBlocos;
+
     },
-    collisionHandler: function (obj1, obj2) {
-        //console.log('elmeri is collising');
-        //alert('Game Over');
-    },
-    gameOver: function (p, b) {
-        console.log('elmeri is collising')
+
+    colisaoBloco: function (player, bloco) {
+
+        game.state.start('end');
+
     }
 
 };
