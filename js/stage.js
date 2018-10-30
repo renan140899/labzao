@@ -5,14 +5,18 @@ var stageState = {
     aceleracaoAndar: 1250,
     aceleracaoAndarFreio: 1750,
     velocidadeAndarMax: 500,
-    gravidadeBlocos: 50,
+    gravidadeBlocos: 0,
     score: 0,
+    highScore:0,
+    txtLab: "",
+    aceleracaoContador: 0,
 
     create: function () {
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //game.add.tileSprite(0, 0, 800, 600, "bg");
+        game.stage.backgroundColor = "#9b59b6";
 
         this.player = game.add.sprite(100, window.innerHeight - 40, "player");
 
@@ -34,7 +38,17 @@ var stageState = {
         this.grupoBlocos.enableBody = true;
         //this.grupoBlocos.createMultiple(15, 'block');
         game.physics.arcade.enable(this.grupoBlocos);
-        this.score = 0;
+
+
+        this.txtScore = game.add.text(160, 40, 'Score: 0', {
+            font: '30px emulogic',
+            fill: '#fff'
+        });
+        this.txtScore.anchor.set(0.5);
+
+
+        this.restart();
+        
     },
 
     atualizarPosicaoPlayer: function () {
@@ -103,19 +117,37 @@ var stageState = {
     },
 
     update: function () {
-
+        
         var agora = game.time.now;
 
         if (agora >= this.horaProximoBloco) {
             this.horaProximoBloco = agora + 500 + (1000 * Math.random());
             this.aparecerBloco();
         }
-        this.score +=0.05;
-        this.gravidadeBlocos += 0.01;
+        
+        if (agora >= this.aceleracaoContador) {
+            this.aceleracaoContador = agora + 50 + (100 * Math.random());
+            this.score++;
+        }
+        
+        this.txtScore.setText("Score: " + this.score);
+        
+
+        this.gravidadeBlocos += 0.4;
 
         this.atualizarPosicaoPlayer();
 
         game.physics.arcade.overlap(this.player, this.grupoBlocos, this.colisaoBloco, null, this);
+        
+    },
+    
+    restart: function(){
+        
+        if( this.score > this.highScore){
+            this.highScore = this.score;
+        }
+        this.score = 0;
+
     },
 
 
@@ -135,20 +167,9 @@ var stageState = {
     },
 
     colisaoBloco: function (player, bloco) {
-      this.gravidadeBlocos = 50;
-      this.score = 0;
-      game.state.start('end');
 
-    },
-    render: function () {
-      var txtscore = game.add.text(50, 30, 'score: ', {
-              font: '13px emulogic',
-              fill: '#fff'
-          });
-          txtscore.anchor.set(0.5);
+        game.state.start('end');
 
-    game.debug.text(parseInt(this.score), 100, 33);
-
-}
+    }
 
 };

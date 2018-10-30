@@ -7,13 +7,13 @@ var menuState = {
         this.music.play(); // TOCA A MUSICA DA FOXXXX GOL NA LIBERTA
 
         var txtlab = game.add.text(game.world.centerX, 150, 'Labs', {
-                font: '40px emulogic',
+                font: '60px emulogic',
                 fill: '#fff'
             });
             txtlab.anchor.set(0.5);
             
         var txtpressstart = game.add.text(game.world.centerX, 550, 'Press Enter', {
-                font: '20px emulogic',
+                font: '30px emulogic',
                 fill: '#fff'
             });
             txtpressstart.anchor.set(.5);
