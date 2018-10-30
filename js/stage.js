@@ -12,7 +12,7 @@ var stageState = {
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
-        game.add.tileSprite(0, 0, 800, 600, "bg");
+        //game.add.tileSprite(0, 0, 800, 600, "bg");
 
         this.player = game.add.sprite(100, window.innerHeight - 40, "player");
 
