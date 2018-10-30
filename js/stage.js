@@ -6,6 +6,7 @@ var stageState = {
     aceleracaoAndarFreio: 1750,
     velocidadeAndarMax: 500,
     gravidadeBlocos: 0,
+    score: 0,
 
     create: function () {
 
@@ -33,6 +34,7 @@ var stageState = {
         this.grupoBlocos.enableBody = true;
         //this.grupoBlocos.createMultiple(15, 'block');
         game.physics.arcade.enable(this.grupoBlocos);
+        this.score = 0;
     },
 
     atualizarPosicaoPlayer: function () {
