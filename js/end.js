@@ -15,6 +15,7 @@ var endState = {
             txtRestart.anchor.set(.5);
             txtRestart.inputEnabled = true;
             txtRestart.events.onInputDown.add(this.restart, this);
+            game.add.tween(txtRestart).to({y:250},1100).start();
         
         var txtMenu = game.add.text(game.world.centerX, 600, 'Menu', {
                 font: '20px emulogic',
