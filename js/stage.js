@@ -5,18 +5,27 @@ var stageState = {
     aceleracaoAndar: 1250,
     aceleracaoAndarFreio: 1750,
     velocidadeAndarMax: 500,
-    gravidadeBlocos: 0,
+    gravidadeBlocos: 20,
     score: 0,
-    highScore:0,
-    txtLab: "",
+    highScore:0,  
     aceleracaoContador: 0,
+    txtLab: "",
+    txtScore: "",
+    txtGameOver: "",
+    txtScoreTela: "",
+    txtHighScore: "",
+    txtRestart: "",
+    txtMenu: "",
+    txtNovoHighScore: "",
+    leftButton: null,
+    rightButton: null,
 
     create: function () {
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //game.add.tileSprite(0, 0, 800, 600, "bg");
-        game.stage.backgroundColor = "#9b59b6";
+        game.stage.backgroundColor = "#54a0ff";
 
         this.player = game.add.sprite(100, window.innerHeight - 40, "player");
 
@@ -45,7 +54,49 @@ var stageState = {
             fill: '#fff'
         });
         this.txtScore.anchor.set(0.5);
-
+        
+        this.txtGameOver = game.add.text(game.world.centerX, -50, 'Game Over', {
+            font: '60px emulogic',
+            fill: '#fff'
+            });
+            this.txtGameOver.anchor.set(0.5);
+         
+        this.txtNovoHighScore = game.add.text(-500, 320, 'Novo High Score!!', {
+                font: '35px emulogic',
+                fill: '#fff'
+            });
+            this.txtNovoHighScore.anchor.set(0.5);
+        
+        this.txtScoreTela = game.add.text(-300, 400, 'Score: 0', {
+                font: '50px emulogic',
+                fill: '#fff'
+            });
+            this.txtScoreTela.anchor.set(0.5);
+            
+        
+        this.txtHighScore = game.add.text(-300, 470, 'High Score: 0', {
+                font: '20px emulogic',
+                fill: '#fff'
+            });
+            this.txtHighScore.anchor.set(0.5);
+            
+        
+        this.txtRestart = game.add.text(window.innerWidth + 300, 550, 'Restart', {
+                font: '30px emulogic',
+                fill: '#fff'
+            });
+            this.txtRestart.anchor.set(.5);
+            this.txtRestart.inputEnabled = true;
+            this.txtRestart.events.onInputDown.add(this.retornaGame, this);
+            
+        
+        this.txtMenu = game.add.text(window.innerWidth + 300, 600, 'Menu', {
+                font: '25px emulogic',
+                fill: '#fff'
+            });
+            this.txtMenu.anchor.set(.5);
+            this.txtMenu.inputEnabled = true;
+            this.txtMenu.events.onInputDown.add(this.backMenu, this);
 
         this.restart();
         
@@ -143,10 +194,12 @@ var stageState = {
     
     restart: function(){
         
-        if( this.score > this.highScore){
-            this.highScore = this.score;
-        }
+
+        
         this.score = 0;
+        this.gravidadeBlocos = 20,
+        this.player.revive();
+        
 
     },
 
@@ -165,10 +218,39 @@ var stageState = {
         bloco.body.gravity.y = this.gravidadeBlocos;
 
     },
+    
+    retornaGame: function(){
+        
+        game.state.start('stage');
+    },
+    
+    backMenu: function(){
+        
+        game.state.start('menu');
+    },
 
     colisaoBloco: function (player, bloco) {
-
-        game.state.start('end');
+        
+        
+        this.player.kill();
+        game.add.tween(this.txtGameOver).to({y:150},500).start();
+        game.add.tween(this.txtScoreTela).to({x:game.world.centerX},500).start();
+        game.add.tween(this.txtHighScore).to({x:game.world.centerX},500).start();
+        game.add.tween(this.txtRestart).to({x:game.world.centerX},500).start();
+        game.add.tween(this.txtMenu).to({x:game.world.centerX},500).start();
+        
+        
+        if( this.score > this.highScore){
+            this.highScore = this.score;
+            game.add.tween(this.txtNovoHighScore).to({x:game.world.centerX},500).start();
+        }
+        
+        this.txtScoreTela.text = "Score: " + this.score;
+        this.txtHighScore.text = "High Score: " + this.highScore;
+        
+        this.txtScore.visible = false;
+        
+        //game.state.start('end');
 
     }
 

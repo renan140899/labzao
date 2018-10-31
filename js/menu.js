@@ -1,10 +1,14 @@
 var menuState = {
     create: function () {
-
+        
+        game.stage.backgroundColor = "Black";
+        
         this.music = game.add.audio('music'); // atributo global
         this.music.loop = true; // infinita essa porra
         this.music.volume = 0.1; // valor vai de 0 a 1;
-        this.music.play(); // TOCA A MUSICA DA FOXXXX GOL NA LIBERTA
+        //this.music.play(); // TOCA A MUSICA DA FOXXXX GOL NA LIBERTA 
+        
+        // TIREI A MUSICA PORQUE NÃO PRA PROGRAMAR COM ISSO IRRITA DEMAIS
 
         var txtlab = game.add.text(game.world.centerX, 150, 'Labs', {
                 font: '60px emulogic',
