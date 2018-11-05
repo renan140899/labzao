@@ -7,7 +7,7 @@ var stageState = {
     velocidadeAndarMax: 500,
     gravidadeBlocos: 20,
     score: 0,
-    highScore:0,  
+    highScore:0,
     aceleracaoContador: 0,
     txtLab: "",
     txtScore: "",
@@ -19,10 +19,21 @@ var stageState = {
     txtNovoHighScore: "",
     leftButton: null,
     rightButton: null,
-
+    left:null,
+    right:null,
     create: function () {
+      // add a hypothetical 10x10 sprite
+      left = game.add.sprite(0,-50, 'test');
+      left.inputEnabled = true;
+      left.hitArea = new Phaser.Rectangle(0,0, window.innerWidth/2, window.innerHeight+50);
+      left.events.onInputDown.add(function() {this.player.body.velocity.x = -250;}, this);
 
-        game.physics.startSystem(Phaser.Physics.ARCADE);
+      right = game.add.sprite(window.innerWidth/2,-50, 'e');
+      right.inputEnabled = true;
+      right.hitArea = new Phaser.Rectangle(0,0, window.innerWidth/2, window.innerHeight+50);
+      right.events.onInputDown.add(function() {this.player.body.velocity.x = 250;}, this);
+
+     game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //game.add.tileSprite(0, 0, 800, 600, "bg");
         game.stage.backgroundColor = "#54a0ff";
@@ -54,33 +65,33 @@ var stageState = {
             fill: '#fff'
         });
         this.txtScore.anchor.set(0.5);
-        
+
         this.txtGameOver = game.add.text(game.world.centerX, -50, 'Game Over', {
             font: '60px emulogic',
             fill: '#fff'
             });
             this.txtGameOver.anchor.set(0.5);
-         
+
         this.txtNovoHighScore = game.add.text(-500, 320, 'Novo High Score!!', {
                 font: '35px emulogic',
                 fill: '#fff'
             });
             this.txtNovoHighScore.anchor.set(0.5);
-        
+
         this.txtScoreTela = game.add.text(-300, 400, 'Score: 0', {
                 font: '50px emulogic',
                 fill: '#fff'
             });
             this.txtScoreTela.anchor.set(0.5);
-            
-        
+
+
         this.txtHighScore = game.add.text(-300, 470, 'High Score: 0', {
                 font: '20px emulogic',
                 fill: '#fff'
             });
             this.txtHighScore.anchor.set(0.5);
-            
-        
+
+
         this.txtRestart = game.add.text(window.innerWidth + 300, 550, 'Restart', {
                 font: '30px emulogic',
                 fill: '#fff'
@@ -88,8 +99,8 @@ var stageState = {
             this.txtRestart.anchor.set(.5);
             this.txtRestart.inputEnabled = true;
             this.txtRestart.events.onInputDown.add(this.retornaGame, this);
-            
-        
+
+
         this.txtMenu = game.add.text(window.innerWidth + 300, 600, 'Menu', {
                 font: '25px emulogic',
                 fill: '#fff'
@@ -99,10 +110,10 @@ var stageState = {
             this.txtMenu.events.onInputDown.add(this.backMenu, this);
 
         this.restart();
-        
+
     },
 
-    atualizarPosicaoPlayer: function () {
+  /*  atualizarPosicaoPlayer: function () {
         var a = 0;
         var v = this.player.body.velocity.x;
         if (game.input.mousePointer.x < (this.player.body.position.x - 10)) {
@@ -165,41 +176,40 @@ var stageState = {
         this.player.body.velocidadeAntiga = v;
         this.player.body.velocity.x = v;
         this.player.body.acceleration.x = a;
-    },
-
+    },*/
     update: function () {
-        
+
         var agora = game.time.now;
 
         if (agora >= this.horaProximoBloco) {
             this.horaProximoBloco = agora + 500 + (1000 * Math.random());
             this.aparecerBloco();
         }
-        
+
         if (agora >= this.aceleracaoContador) {
             this.aceleracaoContador = agora + 50 + (100 * Math.random());
             this.score++;
         }
-        
+
         this.txtScore.setText("Score: " + this.score);
-        
+
 
         this.gravidadeBlocos += 0.4;
 
-        this.atualizarPosicaoPlayer();
+        //this.atualizarPosicaoPlayer();
 
         game.physics.arcade.overlap(this.player, this.grupoBlocos, this.colisaoBloco, null, this);
-        
-    },
-    
-    restart: function(){
-        
 
-        
+    },
+
+    restart: function(){
+
+
+
         this.score = 0;
         this.gravidadeBlocos = 20,
         this.player.revive();
-        
+
 
     },
 
@@ -218,38 +228,38 @@ var stageState = {
         bloco.body.gravity.y = this.gravidadeBlocos;
 
     },
-    
+
     retornaGame: function(){
-        
+
         game.state.start('stage');
     },
-    
+
     backMenu: function(){
-        
+
         game.state.start('menu');
     },
 
     colisaoBloco: function (player, bloco) {
-        
-        
+
+
         this.player.kill();
         game.add.tween(this.txtGameOver).to({y:150},500).start();
         game.add.tween(this.txtScoreTela).to({x:game.world.centerX},500).start();
         game.add.tween(this.txtHighScore).to({x:game.world.centerX},500).start();
         game.add.tween(this.txtRestart).to({x:game.world.centerX},500).start();
         game.add.tween(this.txtMenu).to({x:game.world.centerX},500).start();
-        
-        
+
+
         if( this.score > this.highScore){
             this.highScore = this.score;
             game.add.tween(this.txtNovoHighScore).to({x:game.world.centerX},500).start();
         }
-        
+
         this.txtScoreTela.text = "Score: " + this.score;
         this.txtHighScore.text = "High Score: " + this.highScore;
-        
+
         this.txtScore.visible = false;
-        
+
         //game.state.start('end');
 
     }
