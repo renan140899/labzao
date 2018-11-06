@@ -13,7 +13,8 @@ var loadState = {
         game.load.image('block', 'images/block.png'); // imagem estatica
         game.load.image('end', 'images/end.png'); // imagem estatica
         game.load.image('part', 'images/part.png'); // imagem estatica
-        game.load.image('navigator', 'images/nav.png'); 
+        game.load.image('navigator', 'images/nav.png');
+        game.load.image('fundo', 'images/fundo.png');
         
         // passar tamanho de cada celula (w,h)
         game.load.spritesheet('coin', 'images/coin.png', 32, 32);  // imagens em pedaços

@@ -7,7 +7,7 @@ var stageState = {
     velocidadeAndarMax: 500,
     gravidadeBlocos: 20,
     score: 0,
-    highScore:0,
+    highScore: 0,
     aceleracaoContador: 0,
     txtLab: "",
     txtScore: "",
@@ -17,26 +17,24 @@ var stageState = {
     txtRestart: "",
     txtMenu: "",
     txtNovoHighScore: "",
-    leftButton: null,
-    rightButton: null,
-    left:null,
-    right:null,
+    left: null,
+    right: null,
+    
     create: function () {
-      // add a hypothetical 10x10 sprite
-      left = game.add.sprite(0,-50, 'test');
-      left.inputEnabled = true;
-      left.hitArea = new Phaser.Rectangle(0,0, window.innerWidth/2, window.innerHeight+50);
-      left.events.onInputDown.add(function() {this.player.body.velocity.x = -250;}, this);
+        
+        left = game.add.sprite(0, -50, 'test');
+        left.inputEnabled = true;
+        left.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
+        left.events.onInputDown.add(function () { this.player.body.velocity.x = -250; }, this);
 
-      right = game.add.sprite(window.innerWidth/2,-50, 'e');
-      right.inputEnabled = true;
-      right.hitArea = new Phaser.Rectangle(0,0, window.innerWidth/2, window.innerHeight+50);
-      right.events.onInputDown.add(function() {this.player.body.velocity.x = 250;}, this);
+        right = game.add.sprite(window.innerWidth / 2, -50, 'e');
+        right.inputEnabled = true;
+        right.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
+        right.events.onInputDown.add(function () { this.player.body.velocity.x = 250; }, this);
 
-     game.physics.startSystem(Phaser.Physics.ARCADE);
-
-        //game.add.tileSprite(0, 0, 800, 600, "bg");
-        game.stage.backgroundColor = "#54a0ff";
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+        
+        game.add.tileSprite(0, 0, 1081, 1920, "fundo");
 
         this.player = game.add.sprite(100, window.innerHeight - 40, "player");
 
@@ -59,7 +57,6 @@ var stageState = {
         //this.grupoBlocos.createMultiple(15, 'block');
         game.physics.arcade.enable(this.grupoBlocos);
 
-
         this.txtScore = game.add.text(160, 40, 'Score: 0', {
             font: '30px emulogic',
             fill: '#fff'
@@ -69,114 +66,112 @@ var stageState = {
         this.txtGameOver = game.add.text(game.world.centerX, -50, 'Game Over', {
             font: '60px emulogic',
             fill: '#fff'
-            });
-            this.txtGameOver.anchor.set(0.5);
+        });
+        this.txtGameOver.anchor.set(0.5);
 
         this.txtNovoHighScore = game.add.text(-500, 320, 'Novo High Score!!', {
-                font: '35px emulogic',
-                fill: '#fff'
-            });
-            this.txtNovoHighScore.anchor.set(0.5);
+            font: '35px emulogic',
+            fill: '#fff'
+        });
+        this.txtNovoHighScore.anchor.set(0.5);
 
         this.txtScoreTela = game.add.text(-300, 400, 'Score: 0', {
-                font: '50px emulogic',
-                fill: '#fff'
-            });
-            this.txtScoreTela.anchor.set(0.5);
-
+            font: '50px emulogic',
+            fill: '#fff'
+        });
+        this.txtScoreTela.anchor.set(0.5);
 
         this.txtHighScore = game.add.text(-300, 470, 'High Score: 0', {
-                font: '20px emulogic',
-                fill: '#fff'
-            });
-            this.txtHighScore.anchor.set(0.5);
-
+            font: '20px emulogic',
+            fill: '#fff'
+        });
+        this.txtHighScore.anchor.set(0.5);
 
         this.txtRestart = game.add.text(window.innerWidth + 300, 550, 'Restart', {
-                font: '30px emulogic',
-                fill: '#fff'
-            });
-            this.txtRestart.anchor.set(.5);
-            this.txtRestart.inputEnabled = true;
-            this.txtRestart.events.onInputDown.add(this.retornaGame, this);
-
+            font: '30px emulogic',
+            fill: '#fff'
+        });
+        this.txtRestart.anchor.set(.5);
+        this.txtRestart.inputEnabled = true;
+        this.txtRestart.events.onInputDown.add(this.retornaGame, this);
 
         this.txtMenu = game.add.text(window.innerWidth + 300, 600, 'Menu', {
-                font: '25px emulogic',
-                fill: '#fff'
-            });
-            this.txtMenu.anchor.set(.5);
-            this.txtMenu.inputEnabled = true;
-            this.txtMenu.events.onInputDown.add(this.backMenu, this);
+            font: '25px emulogic',
+            fill: '#fff'
+        });
+        this.txtMenu.anchor.set(.5);
+        this.txtMenu.inputEnabled = true;
+        this.txtMenu.events.onInputDown.add(this.backMenu, this);
 
         this.restart();
 
     },
 
-  /*  atualizarPosicaoPlayer: function () {
-        var a = 0;
-        var v = this.player.body.velocity.x;
-        if (game.input.mousePointer.x < (this.player.body.position.x - 10)) {
-            if (v > 0) {
-                // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
-                a = -this.aceleracaoAndarFreio;
-            } else {
-                a = -this.aceleracaoAndar;
-            }
-        } else if (game.input.mousePointer.x > (this.player.body.position.x + 10)) {
-            if (v < 0) {
-                // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
-                a = this.aceleracaoAndarFreio;
-            } else {
-                a = this.aceleracaoAndar;
-            }
-        } else {
-            if (v > 0) {
-                if (this.player.body.velocidadeAntiga < 0) {
-                    // Força a parada!
-                    a = 0;
-                    v = 0;
-                } else {
-                    // Ainda estamos parando
-                    a = -this.aceleracaoAndarFreio;
-                }
-            } else if (v < 0) {
-                if (this.player.body.velocidadeAntiga > 0) {
-                    // Força a parada!
-                    a = 0;
-                    v = 0;
-                } else {
-                    // Ainda estamos parando
-                    a = this.aceleracaoAndarFreio;
-                }
-            }
-        }
+    /*  atualizarPosicaoPlayer: function () {
+          var a = 0;
+          var v = this.player.body.velocity.x;
+          if (game.input.mousePointer.x < (this.player.body.position.x - 10)) {
+              if (v > 0) {
+                  // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
+                  a = -this.aceleracaoAndarFreio;
+              } else {
+                  a = -this.aceleracaoAndar;
+              }
+          } else if (game.input.mousePointer.x > (this.player.body.position.x + 10)) {
+              if (v < 0) {
+                  // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
+                  a = this.aceleracaoAndarFreio;
+              } else {
+                  a = this.aceleracaoAndar;
+              }
+          } else {
+              if (v > 0) {
+                  if (this.player.body.velocidadeAntiga < 0) {
+                      // Força a parada!
+                      a = 0;
+                      v = 0;
+                  } else {
+                      // Ainda estamos parando
+                      a = -this.aceleracaoAndarFreio;
+                  }
+              } else if (v < 0) {
+                  if (this.player.body.velocidadeAntiga > 0) {
+                      // Força a parada!
+                      a = 0;
+                      v = 0;
+                  } else {
+                      // Ainda estamos parando
+                      a = this.aceleracaoAndarFreio;
+                  }
+              }
+          }
 
-        // Utilizando player.body.onFloor() e player.body.touching.down,
-        // também poderíamos criar uma animação especial para quando o
-        // personagem está pulando no ar...
+          // Utilizando player.body.onFloor() e player.body.touching.down,
+          // também poderíamos criar uma animação especial para quando o
+          // personagem está pulando no ar...
 
-        if (v > 0) {
-            if (this.player.body.animacaoAtual !== 1) {
-                this.player.body.animacaoAtual = 1;
-                this.player.animations.play("direita");
-            }
-        } else if (v < 0) {
-            if (this.player.body.animacaoAtual !== -1) {
-                this.player.body.animacaoAtual = -1;
-                this.player.animations.play("esquerda");
-            }
-        } else {
-            if (this.player.body.animacaoAtual !== 0) {
-                this.player.body.animacaoAtual = 0;
-                this.player.animations.play("parado");
-            }
-        }
+          if (v > 0) {
+              if (this.player.body.animacaoAtual !== 1) {
+                  this.player.body.animacaoAtual = 1;
+                  this.player.animations.play("direita");
+              }
+          } else if (v < 0) {
+              if (this.player.body.animacaoAtual !== -1) {
+                  this.player.body.animacaoAtual = -1;
+                  this.player.animations.play("esquerda");
+              }
+          } else {
+              if (this.player.body.animacaoAtual !== 0) {
+                  this.player.body.animacaoAtual = 0;
+                  this.player.animations.play("parado");
+              }
+          }
 
-        this.player.body.velocidadeAntiga = v;
-        this.player.body.velocity.x = v;
-        this.player.body.acceleration.x = a;
-    },*/
+          this.player.body.velocidadeAntiga = v;
+          this.player.body.velocity.x = v;
+          this.player.body.acceleration.x = a;
+      },*/
+
     update: function () {
 
         var agora = game.time.now;
@@ -202,15 +197,11 @@ var stageState = {
 
     },
 
-    restart: function(){
-
-
+    restart: function () {
 
         this.score = 0;
         this.gravidadeBlocos = 20,
         this.player.revive();
-
-
     },
 
 
@@ -226,33 +217,31 @@ var stageState = {
         bloco.anchor.x = 0.5;
         bloco.anchor.y = 0.5;
         bloco.body.gravity.y = this.gravidadeBlocos;
-
     },
 
-    retornaGame: function(){
+    retornaGame: function () {
 
         game.state.start('stage');
     },
 
-    backMenu: function(){
+    backMenu: function () {
 
         game.state.start('menu');
     },
 
     colisaoBloco: function (player, bloco) {
 
-
         this.player.kill();
-        game.add.tween(this.txtGameOver).to({y:150},500).start();
-        game.add.tween(this.txtScoreTela).to({x:game.world.centerX},500).start();
-        game.add.tween(this.txtHighScore).to({x:game.world.centerX},500).start();
-        game.add.tween(this.txtRestart).to({x:game.world.centerX},500).start();
-        game.add.tween(this.txtMenu).to({x:game.world.centerX},500).start();
+        game.add.tween(this.txtGameOver).to({ y: 150 }, 500).start();
+        game.add.tween(this.txtScoreTela).to({ x: game.world.centerX }, 500).start();
+        game.add.tween(this.txtHighScore).to({ x: game.world.centerX }, 500).start();
+        game.add.tween(this.txtRestart).to({ x: game.world.centerX }, 500).start();
+        game.add.tween(this.txtMenu).to({ x: game.world.centerX }, 500).start();
 
-
-        if( this.score > this.highScore){
+        if (this.score > this.highScore) {
+            
             this.highScore = this.score;
-            game.add.tween(this.txtNovoHighScore).to({x:game.world.centerX},500).start();
+            game.add.tween(this.txtNovoHighScore).to({ x: game.world.centerX }, 500).start();
         }
 
         this.txtScoreTela.text = "Score: " + this.score;
