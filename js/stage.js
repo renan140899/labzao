@@ -19,18 +19,18 @@ var stageState = {
     txtNovoHighScore: "",
     left: null,
     right: null,
-    
+
     create: function () {
         
-        left = game.add.sprite(0, -50, 'test');
-        left.inputEnabled = true;
-        left.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
-        left.events.onInputDown.add(function () { this.player.body.velocity.x = -250; }, this);
+        this.left = game.add.sprite(0, -50, 'test');
+        this.left.inputEnabled = true;
+        this.left.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
+        this.left.events.onInputDown.add(this.moveLeft, this);
 
-        right = game.add.sprite(window.innerWidth / 2, -50, 'e');
-        right.inputEnabled = true;
-        right.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
-        right.events.onInputDown.add(function () { this.player.body.velocity.x = 250; }, this);
+        this.right = game.add.sprite(window.innerWidth / 2, -50, 'e');
+        this.right.inputEnabled = true;
+        this.right.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
+        this.right.events.onInputDown.add( this.moveRight , this);
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
         
@@ -105,6 +105,15 @@ var stageState = {
 
         this.restart();
 
+    },
+    
+    moveLeft: function() {
+        this.player.body.velocity.x = -150;
+        
+    },
+    moveRight: function() {
+        this.player.body.velocity.x = 150;
+        
     },
 
     /*  atualizarPosicaoPlayer: function () {
