@@ -2,10 +2,12 @@ var stageState = {
     player: null,
     grupoBlocos: null,
     horaProximoBloco: 0,
-    aceleracaoAndar: 1250,
-    aceleracaoAndarFreio: 1750,
-    velocidadeAndarMax: 500,
-    gravidadeBlocos: 20,
+    aceleracaoAndar: 0,
+    aceleracaoAndarFreio: 0,
+    velocidadeAndarMax: 0,
+    gravidadeBlocosOriginal: 0,
+    gravidadeBlocos: 0,
+    velocidadeMaximaBlocos: 0,
     score: 0,
     highScore: 0,
     aceleracaoContador: 0,
@@ -17,30 +19,89 @@ var stageState = {
     txtRestart: "",
     txtMenu: "",
     txtNovoHighScore: "",
-    left: null,
-    right: null,
+    w0: 0,
+    x0i: 0,
+    x0f: 0,
+    y0: 0,
+    w1: 0,
+    x1i: 0,
+    x1f: 0,
+    y1: 0,
+    yHitMin: 0,
+    yHitMax: 0,
+    yKillSprite: 0,
+    mEscala: 0,
+    nEscala: 0,
+
 
     create: function () {
-        
-        this.left = game.add.sprite(0, -50, 'test');
-        this.left.inputEnabled = true;
-        this.left.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
-        this.left.events.onInputDown.add(this.moveLeft, this);
+        this.aceleracaoAndar = 1250;
+        this.aceleracaoAndarFreio = 1750;
+        this.velocidadeAndarMax = 500;
+        this.gravidadeBlocos = 20;
+        this.velocidadeMaximaBlocos = 200;
+        this.w0 = 227;
+        this.x0i = 158;
+        this.x0f = 340;
+        this.y0 = 61;
+        this.w1 = 479;
+        this.x1i = 0;
+        this.x1f = 0;
+        this.y1 = 625;
+        this.yHitMin = 615;
+        this.yHitMax = 625;
+        this.yKillSprite = 650;
 
-        this.right = game.add.sprite(window.innerWidth / 2, -50, 'e');
-        this.right.inputEnabled = true;
-        this.right.hitArea = new Phaser.Rectangle(0, 0, window.innerWidth / 2, window.innerHeight + 50);
-        this.right.events.onInputDown.add( this.moveRight , this);
+        this.x1i = (larguraPadrao - this.w1) * 0.5;
+        this.x1f = larguraPadrao - this.x1i;
+        var deltaCima = this.x0i - ((larguraPadrao - this.w0) * 0.5);
+        var deltaBaixo = deltaCima * this.w1 / this.w0;
+        this.x1i += deltaBaixo;
+        this.x1f -= deltaBaixo;
+
+        if (largura !== larguraPadrao) {
+          var escala = largura / larguraPadrao;
+          this.x0i *= escala;
+          this.x0f *= escala;
+          this.x1i *= escala;
+          this.x1f *= escala;
+          this.aceleracaoAndar *= escala;
+          this.aceleracaoAndarFreio *= escala;
+          this.velocidadeAndarMax *= escala;
+        }
+
+        if (altura !== alturaPadrao) {
+          var escala = altura / alturaPadrao;
+          this.y0 *= escala;
+          this.y1 *= escala;
+          this.yHitMin *= escala;
+          this.yHitMax *= escala;
+          this.yKillSprite *= escala;
+          this.gravidadeBlocos *= escala;
+          this.velocidadeMaximaBlocos *= escala;
+        }
+
+        this.gravidadeBlocosOriginal = this.gravidadeBlocos;
+
+        this.nEscala = this.w0 / this.w1;
+        var k = this.nEscala;
+        this.mEscala = (1 - k) / (this.y1 - this.y0);
+
+        console.log(this.x1i + " / " + this.x1f);
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        
-        game.add.tileSprite(0, 0, 1081, 1920, "fundo");
 
-        this.player = game.add.sprite(100, window.innerHeight - 40, "player");
+        var fundo = game.add.sprite(0, 0, "fundo");
+        fundo.width = largura;
+        fundo.height = altura;
+
+        this.player = game.add.sprite(metadeLargura, this.y1, "player");
 
         game.physics.arcade.enable(this.player);
 
         this.player.body.collideWorldBounds = true;
+        this.player.anchor.x = 0.5;
+        this.player.anchor.y = 1;
         this.player.animations.add("esquerda", [0, 1, 2, 3], 12, true);
         this.player.animations.add("parado", [4], 1, true);
         this.player.animations.add("direita", [5, 6, 7], 12, true);
@@ -106,53 +167,66 @@ var stageState = {
         this.restart();
 
     },
-    
-    moveLeft: function() {
-        this.player.body.velocity.x = -150;
-        
-    },
-    moveRight: function() {
-        this.player.body.velocity.x = 150;
-        
-    },
 
-    /*  atualizarPosicaoPlayer: function () {
+     atualizarPosicaoPlayer: function (pressionado, x) {
           var a = 0;
           var v = this.player.body.velocity.x;
-          if (game.input.mousePointer.x < (this.player.body.position.x - 10)) {
-              if (v > 0) {
-                  // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
-                  a = -this.aceleracaoAndarFreio;
+          if (!pressionado) {
+            if (v > 0) {
+              if (this.player.body.velocidadeAntiga <= 0) {
+                v = 0;
+                a = 0;
               } else {
-                  a = -this.aceleracaoAndar;
+                a = -this.aceleracaoAndarFreio;
               }
-          } else if (game.input.mousePointer.x > (this.player.body.position.x + 10)) {
-              if (v < 0) {
-                  // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
-                  a = this.aceleracaoAndarFreio;
+            } else if (v < 0) {
+              if (this.player.body.velocidadeAntiga >= 0) {
+                v = 0;
+                a = 0;
               } else {
-                  a = this.aceleracaoAndar;
+                a = this.aceleracaoAndarFreio;
               }
+            }
           } else {
-              if (v > 0) {
-                  if (this.player.body.velocidadeAntiga < 0) {
-                      // Força a parada!
-                      a = 0;
-                      v = 0;
-                  } else {
-                      // Ainda estamos parando
-                      a = -this.aceleracaoAndarFreio;
-                  }
-              } else if (v < 0) {
-                  if (this.player.body.velocidadeAntiga > 0) {
-                      // Força a parada!
-                      a = 0;
-                      v = 0;
-                  } else {
-                      // Ainda estamos parando
-                      a = this.aceleracaoAndarFreio;
-                  }
-              }
+            // @@@
+            //if (x < (this.player.body.position.x - 10)) {
+            if (x <= metadeLargura) {
+                if (v > 0) {
+                    // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
+                    a = -this.aceleracaoAndarFreio;
+                } else {
+                    a = -this.aceleracaoAndar;
+                }
+            // @@@
+            //} else if (x > (this.player.body.position.x + 10)) {
+            } else if (x > metadeLargura) {
+                if (v < 0) {
+                    // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
+                    a = this.aceleracaoAndarFreio;
+                } else {
+                    a = this.aceleracaoAndar;
+                }
+            } else {
+                if (v > 0) {
+                    if (this.player.body.velocidadeAntiga < 0) {
+                        // Força a parada!
+                        a = 0;
+                        v = 0;
+                    } else {
+                        // Ainda estamos parando
+                        a = -this.aceleracaoAndarFreio;
+                    }
+                } else if (v < 0) {
+                    if (this.player.body.velocidadeAntiga > 0) {
+                        // Força a parada!
+                        a = 0;
+                        v = 0;
+                    } else {
+                        // Ainda estamos parando
+                        a = this.aceleracaoAndarFreio;
+                    }
+                }
+            }
           }
 
           // Utilizando player.body.onFloor() e player.body.touching.down,
@@ -179,14 +253,28 @@ var stageState = {
           this.player.body.velocidadeAntiga = v;
           this.player.body.velocity.x = v;
           this.player.body.acceleration.x = a;
-      },*/
+      },
 
     update: function () {
+        var pressionado = false;
+        var xPonteiro;
+        if (game.input.mousePointer.isDown) {
+          pressionado = true;
+          xPonteiro = game.input.mousePointer.x;
+        } else if (game.input.pointer1.isDown) {
+          pressionado = true;
+          xPonteiro = game.input.pointer1.x;
+        } else if (game.input.pointer2.isDown) {
+          pressionado = true;
+          xPonteiro = game.input.pointer2.x;
+        }
+
+        this.atualizarPosicaoPlayer(pressionado, xPonteiro);
 
         var agora = game.time.now;
 
         if (agora >= this.horaProximoBloco) {
-            this.horaProximoBloco = agora + 500 + (1000 * Math.random());
+            this.horaProximoBloco = agora + Math.floor(Math.random() * (window.innerWidth - 0 + 1000)) + 0;
             this.aparecerBloco();
         }
 
@@ -197,8 +285,25 @@ var stageState = {
 
         this.txtScore.setText("Score: " + this.score);
 
-
         this.gravidadeBlocos += 0.4;
+
+        for (var i = this.grupoBlocos.children.length - 1; i >= 0; i--) {
+          var bloco = this.grupoBlocos.children[i];
+          if (!bloco || !bloco.alive) {
+            continue;
+          }
+          var deltaY = (bloco.y - this.y0);
+          var escala = (this.mEscala * deltaY) + this.nEscala;
+          bloco.x = (bloco.mDeltaX * deltaY) + bloco.nDeltaX;
+          bloco.scale.setTo(escala, escala);
+          if (bloco.y > this.y1) {
+            if (bloco.y >= this.yKillSprite) {
+              bloco.kill();
+            } else {
+              bloco.alpha = 1 - ((bloco.y - this.y1) / (this.yKillSprite - this.y1));
+            }
+          }
+        }
 
         //this.atualizarPosicaoPlayer();
 
@@ -209,23 +314,30 @@ var stageState = {
     restart: function () {
 
         this.score = 0;
-        this.gravidadeBlocos = 20,
+        this.gravidadeBlocos = this.gravidadeBlocosOriginal;
         this.player.revive();
     },
 
 
     aparecerBloco: function () {
+        var x = (Math.random() * (this.x0f - this.x0i)) + this.x0i;
+        var y = this.y0;
 
-        var x = Math.floor(Math.random() * (window.innerWidth - 0 + 1)) + 0;
-        var y = -50;
-
-        var bloco = this.grupoBlocos.create(x, y, 'block');
-
+        var bloco = this.grupoBlocos.getFirstDead(true, x, y, 'block');
         game.physics.arcade.enable(bloco);
+        bloco.scale.setTo(this.nEscala, this.nEscala);
         bloco.body.enable = true;
+        bloco.checkWorldBounds = false;
         bloco.anchor.x = 0.5;
-        bloco.anchor.y = 0.5;
+        bloco.anchor.y = 1;
+        bloco.alpha = 1;
+        bloco.body.velocity.y = 0;
         bloco.body.gravity.y = this.gravidadeBlocos;
+        bloco.body.maxVelocity.y = this.velocidadeMaximaBlocos;
+
+        var xFinal = metadeLargura + ((x - metadeLargura) * this.w1 / this.w0);
+        bloco.mDeltaX = (xFinal - x) / (this.y1 - this.y0);
+        bloco.nDeltaX = x;
     },
 
     retornaGame: function () {
@@ -239,6 +351,9 @@ var stageState = {
     },
 
     colisaoBloco: function (player, bloco) {
+        if (bloco.y < this.yHitMin || bloco.y > this.yHitMax) {
+          return;
+        }
 
         this.player.kill();
         game.add.tween(this.txtGameOver).to({ y: 150 }, 500).start();
@@ -248,7 +363,7 @@ var stageState = {
         game.add.tween(this.txtMenu).to({ x: game.world.centerX }, 500).start();
 
         if (this.score > this.highScore) {
-            
+
             this.highScore = this.score;
             game.add.tween(this.txtNovoHighScore).to({ x: game.world.centerX }, 500).start();
         }
@@ -257,8 +372,6 @@ var stageState = {
         this.txtHighScore.text = "High Score: " + this.highScore;
 
         this.txtScore.visible = false;
-
-        //game.state.start('end');
 
     }
 

@@ -5,7 +5,11 @@
 }
 
 body{
-	background-color: rgba(16, 153, 78, 0.685);
+	height: 100%;
+	min-height: 100%;
+	maring: 0;
+	padding: 0;
+	background-color: #333;
 }
 
 @font-face{
@@ -17,4 +21,9 @@ body{
 	font-family: emulogic;
 	visibility: hidden;
 	position: absolute;
+}
+
+canvas {
+	margin: 0 auto;
+	box-shadow: 0 0 16px #000;
 }
