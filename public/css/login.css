@@ -1,7 +1,18 @@
 body{
   background-image: url("fundoo.jpg");
 }
-input[type=text], select {
+
+input[type= text], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.text-field {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;

@@ -372,7 +372,29 @@ var stageState = {
         this.txtHighScore.text = "High Score: " + this.highScore;
 
         this.txtScore.visible = false;
+        // this.newScore();
+        
+    },
+    newScore: function() {
 
-    }
+        var datas = {
+            "value": 9850,
+            "user_id": 1  
+        };
+ 
+        $.ajax({
+            type: 'POST',
+            url: '/score/new',
+            data: JSON.stringify(datas),
+            contentType: 'application/json; charset=utf-8', 
+            dataType: 'jsonp',
+            success: function (resp) {
+                console.log(resp);
+            },
+            error: function (err) {
+                console.log(err, ' erro');
+            }
+        });
+    }   
 
 };
