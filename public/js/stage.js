@@ -36,6 +36,10 @@ var stageState = {
 
     create: function () {
         console.log(sessionStorage.getItem('username'))
+
+        if(!this.username)
+            location.href = "/login";
+            
         functions.getHighScore(sessionStorage.getItem('username'));
         this.aceleracaoAndar = 1250;
         this.aceleracaoAndarFreio = 1750;
