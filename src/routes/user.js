@@ -16,11 +16,7 @@ router.post('/new', async (req, res) => {
     var retorno = await userService.newUser(req.body);
 
     console.log(retorno);
-    
-    if (retorno.status) {
-        res.send(retorno);
-    } else
-        console.log(retorno);
+    res.send(retorno);
 
 });
 
