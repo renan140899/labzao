@@ -9,5 +9,11 @@ module.exports = {
     },
     newScore: async (data) => {
         return await userRepository.newScore(data);
+    },
+    getHighScoreByUserId: async (data) => {
+        return await userRepository.getHighScoreByUserId(data);
+    },
+    getHighScoreByUsername: async (data) => {
+        return await userRepository.getHighScoreByUsername(data);
     }
 }

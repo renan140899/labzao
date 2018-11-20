@@ -14,9 +14,9 @@
       <h3>TechGame</h3>
     </center>
 
-    <form action="login" id="frmCadastro" method="POST">
-      <input type="text" id="Nome" name="name" placeholder="Nome" required>
-      <input type="text" id="Email" name="email" placeholder="Email" required>
+    <form action="user/new" id="frmCadastro" method="POST">
+      <!-- <input type="text" id="Nome" name="name" placeholder="Nome" required> -->
+      <!-- <input type="text" id="Email" name="email" placeholder="Email" required> -->
       <input type="text" id="NomeUser" name="username" placeholder="Nome de usuário" required>
       <!-- <input type="password" class="text-field" id="password" name="password" placeholder="Senha" required>
       <input type="password"  class="text-field" id="password" name="password" placeholder="Confirme sua senha" required> -->
@@ -27,8 +27,42 @@
 
 </html>
 
+
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
 <script src="/content/game/js/jquerytransateValidatorsToBR.js"></script>
+
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('#button').click(function () {
+
+      // This prevents the form from submitting
+      event.preventDefault();
+
+      var datas = {
+        username: $("#NomeUser").val()
+      };
+
+
+      $.ajax({
+        type: 'POST',
+        url: '/user/new',
+        data: JSON.stringify(datas),
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function (resp) {
+            sessionStorage.setItem('username', resp.user.username);
+            sessionStorage.setItem('user_id', resp.user.id);
+            location.href = '/game';
+        },
+        error: function (err) {
+          console.log(err, ' erro');
+        }
+      });
+    }); //end click
+  }); //end rdy
+</script>

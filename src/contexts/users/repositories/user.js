@@ -34,7 +34,7 @@ module.exports = {
         });
     },
     getHighScoreByUsername: async (data) => {
-        return await got(configService.baseUrl + '/user/highscore_username/' + data.username, {
+        return await got(configService.baseUrl + '/user/highscore/' + data.username, {
             headers: { "content-type": "application/json; charset=utf-8" },
             json: true,
         }).then(({ body }) => {

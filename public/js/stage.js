@@ -32,9 +32,11 @@ var stageState = {
     yKillSprite: 0,
     mEscala: 0,
     nEscala: 0,
-
+    username: sessionStorage.getItem('username'),
 
     create: function () {
+        console.log(sessionStorage.getItem('username'))
+        functions.getHighScore(sessionStorage.getItem('username'));
         this.aceleracaoAndar = 1250;
         this.aceleracaoAndarFreio = 1750;
         this.velocidadeAndarMax = 500;
@@ -60,25 +62,25 @@ var stageState = {
         this.x1f -= deltaBaixo;
 
         if (largura !== larguraPadrao) {
-          var escala = largura / larguraPadrao;
-          this.x0i *= escala;
-          this.x0f *= escala;
-          this.x1i *= escala;
-          this.x1f *= escala;
-          this.aceleracaoAndar *= escala;
-          this.aceleracaoAndarFreio *= escala;
-          this.velocidadeAndarMax *= escala;
+            var escala = largura / larguraPadrao;
+            this.x0i *= escala;
+            this.x0f *= escala;
+            this.x1i *= escala;
+            this.x1f *= escala;
+            this.aceleracaoAndar *= escala;
+            this.aceleracaoAndarFreio *= escala;
+            this.velocidadeAndarMax *= escala;
         }
 
         if (altura !== alturaPadrao) {
-          var escala = altura / alturaPadrao;
-          this.y0 *= escala;
-          this.y1 *= escala;
-          this.yHitMin *= escala;
-          this.yHitMax *= escala;
-          this.yKillSprite *= escala;
-          this.gravidadeBlocos *= escala;
-          this.velocidadeMaximaBlocos *= escala;
+            var escala = altura / alturaPadrao;
+            this.y0 *= escala;
+            this.y1 *= escala;
+            this.yHitMin *= escala;
+            this.yHitMax *= escala;
+            this.yKillSprite *= escala;
+            this.gravidadeBlocos *= escala;
+            this.velocidadeMaximaBlocos *= escala;
         }
 
         this.gravidadeBlocosOriginal = this.gravidadeBlocos;
@@ -168,26 +170,26 @@ var stageState = {
 
     },
 
-     atualizarPosicaoPlayer: function (pressionado, x) {
-          var a = 0;
-          var v = this.player.body.velocity.x;
-          if (!pressionado) {
+    atualizarPosicaoPlayer: function (pressionado, x) {
+        var a = 0;
+        var v = this.player.body.velocity.x;
+        if (!pressionado) {
             if (v > 0) {
-              if (this.player.body.velocidadeAntiga <= 0) {
-                v = 0;
-                a = 0;
-              } else {
-                a = -this.aceleracaoAndarFreio;
-              }
+                if (this.player.body.velocidadeAntiga <= 0) {
+                    v = 0;
+                    a = 0;
+                } else {
+                    a = -this.aceleracaoAndarFreio;
+                }
             } else if (v < 0) {
-              if (this.player.body.velocidadeAntiga >= 0) {
-                v = 0;
-                a = 0;
-              } else {
-                a = this.aceleracaoAndarFreio;
-              }
+                if (this.player.body.velocidadeAntiga >= 0) {
+                    v = 0;
+                    a = 0;
+                } else {
+                    a = this.aceleracaoAndarFreio;
+                }
             }
-          } else {
+        } else {
             // @@@
             //if (x < (this.player.body.position.x - 10)) {
             if (x <= metadeLargura) {
@@ -197,8 +199,8 @@ var stageState = {
                 } else {
                     a = -this.aceleracaoAndar;
                 }
-            // @@@
-            //} else if (x > (this.player.body.position.x + 10)) {
+                // @@@
+                //} else if (x > (this.player.body.position.x + 10)) {
             } else if (x > metadeLargura) {
                 if (v < 0) {
                     // Derrapando! (Poderíamos utilizar uma animação especial aqui, para mostrar a derrapagem)
@@ -227,46 +229,46 @@ var stageState = {
                     }
                 }
             }
-          }
+        }
 
-          // Utilizando player.body.onFloor() e player.body.touching.down,
-          // também poderíamos criar uma animação especial para quando o
-          // personagem está pulando no ar...
+        // Utilizando player.body.onFloor() e player.body.touching.down,
+        // também poderíamos criar uma animação especial para quando o
+        // personagem está pulando no ar...
 
-          if (v > 0) {
-              if (this.player.body.animacaoAtual !== 1) {
-                  this.player.body.animacaoAtual = 1;
-                  this.player.animations.play("direita");
-              }
-          } else if (v < 0) {
-              if (this.player.body.animacaoAtual !== -1) {
-                  this.player.body.animacaoAtual = -1;
-                  this.player.animations.play("esquerda");
-              }
-          } else {
-              if (this.player.body.animacaoAtual !== 0) {
-                  this.player.body.animacaoAtual = 0;
-                  this.player.animations.play("parado");
-              }
-          }
+        if (v > 0) {
+            if (this.player.body.animacaoAtual !== 1) {
+                this.player.body.animacaoAtual = 1;
+                this.player.animations.play("direita");
+            }
+        } else if (v < 0) {
+            if (this.player.body.animacaoAtual !== -1) {
+                this.player.body.animacaoAtual = -1;
+                this.player.animations.play("esquerda");
+            }
+        } else {
+            if (this.player.body.animacaoAtual !== 0) {
+                this.player.body.animacaoAtual = 0;
+                this.player.animations.play("parado");
+            }
+        }
 
-          this.player.body.velocidadeAntiga = v;
-          this.player.body.velocity.x = v;
-          this.player.body.acceleration.x = a;
-      },
+        this.player.body.velocidadeAntiga = v;
+        this.player.body.velocity.x = v;
+        this.player.body.acceleration.x = a;
+    },
 
     update: function () {
         var pressionado = false;
         var xPonteiro;
         if (game.input.mousePointer.isDown) {
-          pressionado = true;
-          xPonteiro = game.input.mousePointer.x;
+            pressionado = true;
+            xPonteiro = game.input.mousePointer.x;
         } else if (game.input.pointer1.isDown) {
-          pressionado = true;
-          xPonteiro = game.input.pointer1.x;
+            pressionado = true;
+            xPonteiro = game.input.pointer1.x;
         } else if (game.input.pointer2.isDown) {
-          pressionado = true;
-          xPonteiro = game.input.pointer2.x;
+            pressionado = true;
+            xPonteiro = game.input.pointer2.x;
         }
 
         this.atualizarPosicaoPlayer(pressionado, xPonteiro);
@@ -288,21 +290,21 @@ var stageState = {
         this.gravidadeBlocos += 0.4;
 
         for (var i = this.grupoBlocos.children.length - 1; i >= 0; i--) {
-          var bloco = this.grupoBlocos.children[i];
-          if (!bloco || !bloco.alive) {
-            continue;
-          }
-          var deltaY = (bloco.y - this.y0);
-          var escala = (this.mEscala * deltaY) + this.nEscala;
-          bloco.x = (bloco.mDeltaX * deltaY) + bloco.nDeltaX;
-          bloco.scale.setTo(escala, escala);
-          if (bloco.y > this.y1) {
-            if (bloco.y >= this.yKillSprite) {
-              bloco.kill();
-            } else {
-              bloco.alpha = 1 - ((bloco.y - this.y1) / (this.yKillSprite - this.y1));
+            var bloco = this.grupoBlocos.children[i];
+            if (!bloco || !bloco.alive) {
+                continue;
             }
-          }
+            var deltaY = (bloco.y - this.y0);
+            var escala = (this.mEscala * deltaY) + this.nEscala;
+            bloco.x = (bloco.mDeltaX * deltaY) + bloco.nDeltaX;
+            bloco.scale.setTo(escala, escala);
+            if (bloco.y > this.y1) {
+                if (bloco.y >= this.yKillSprite) {
+                    bloco.kill();
+                } else {
+                    bloco.alpha = 1 - ((bloco.y - this.y1) / (this.yKillSprite - this.y1));
+                }
+            }
         }
 
         //this.atualizarPosicaoPlayer();
@@ -352,49 +354,80 @@ var stageState = {
 
     colisaoBloco: function (player, bloco) {
         if (bloco.y < this.yHitMin || bloco.y > this.yHitMax) {
-          return;
+            return;
         }
 
+        functions.newScore(this.score, sessionStorage.getItem('user_id'));
         this.player.kill();
-        game.add.tween(this.txtGameOver).to({ y: 150 }, 500).start();
-        game.add.tween(this.txtScoreTela).to({ x: game.world.centerX }, 500).start();
-        game.add.tween(this.txtHighScore).to({ x: game.world.centerX }, 500).start();
-        game.add.tween(this.txtRestart).to({ x: game.world.centerX }, 500).start();
-        game.add.tween(this.txtMenu).to({ x: game.world.centerX }, 500).start();
+        game.add.tween(this.txtGameOver).to({
+            y: 150
+        }, 500).start();
+        game.add.tween(this.txtScoreTela).to({
+            x: game.world.centerX
+        }, 500).start();
+        game.add.tween(this.txtHighScore).to({
+            x: game.world.centerX
+        }, 500).start();
+        game.add.tween(this.txtRestart).to({
+            x: game.world.centerX
+        }, 500).start();
+        game.add.tween(this.txtMenu).to({
+            x: game.world.centerX
+        }, 500).start();
+
+
 
         if (this.score > this.highScore) {
-
             this.highScore = this.score;
-            game.add.tween(this.txtNovoHighScore).to({ x: game.world.centerX }, 500).start();
+            game.add.tween(this.txtNovoHighScore).to({
+                x: game.world.centerX
+            }, 500).start();
         }
 
         this.txtScoreTela.text = "Score: " + this.score;
         this.txtHighScore.text = "High Score: " + this.highScore;
-
         this.txtScore.visible = false;
-        // this.newScore();
-        
+
     },
-    newScore: function() {
+};
+
+var functions = {
+    getHighScore: (data) => {
+        $.ajax({
+            type: 'GET',
+            url: '/user/highscore/' + data,
+            contentType: 'application/json; charset=utf-8',
+            success: (resp) => {
+                if (resp.status)
+                    stageState.highScore = resp.highscore.value;
+                else
+                    stageState.highScore = 0;
+            }
+        });
+
+        console.log(stageState.highScore);
+    },
+    newScore: (value, user_id) => {
 
         var datas = {
-            "value": 9850,
-            "user_id": 1  
+            "value": value,
+            "user_id": user_id
         };
- 
+
         $.ajax({
             type: 'POST',
             url: '/score/new',
             data: JSON.stringify(datas),
-            contentType: 'application/json; charset=utf-8', 
-            dataType: 'jsonp',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
             success: function (resp) {
                 console.log(resp);
+                if (resp.status)
+                    functions.getHighScore(resp.score.user_id);
             },
             error: function (err) {
                 console.log(err, ' erro');
             }
         });
-    }   
-
+    },
 };

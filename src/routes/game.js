@@ -9,13 +9,13 @@ router.get('/', function(req, res, next) {
 router.get('/user/:username',async function(req, res) {
     var userService = require('../contexts/users/services/user');
     var retorno = await userService.getUser(req.params);
-    res.send(retorno)
+    res.send({retorno});
 });
 
 router.post('/user/newscore', async (req, res, next) => {
     var userScore = require('../contexts/score/services/score');
     var retorno = await userScore.newScore(req.body);
-    res.send(retorno);
+    res.send({retorno});
 });
 
 module.exports = app => app.use('/game', router);

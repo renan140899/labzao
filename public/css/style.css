@@ -1,10 +1,10 @@
-*{
-	margin:0;
-	padding:0;
-	border:0;
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
 
-body{
+body {
 	height: 100%;
 	min-height: 100%;
 	margin: 0;
@@ -12,12 +12,12 @@ body{
 	background-color: #333;
 }
 
-@font-face{
+@font-face {
 	font-family: emulogic;
 	src: url('emulogic.ttf');
 }
 
-.hidden{
+.hidden {
 	font-family: emulogic;
 	visibility: hidden;
 	position: absolute;
