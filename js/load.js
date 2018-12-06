@@ -19,7 +19,7 @@ var loadState = {
         // passar tamanho de cada celula (w,h)
         game.load.spritesheet('coin', 'images/coin.png', 32, 32);  // imagens em pedaços
         game.load.spritesheet('enemy', 'images/enemy.png', 24, 40);  // imagens em pedaços
-        game.load.spritesheet('player', 'images/enemy.png', 24, 40);  // imagens em pedaços
+        game.load.spritesheet('player', 'images/player.png', 56.5, 131);  // imagens em pedaços
 
 
 

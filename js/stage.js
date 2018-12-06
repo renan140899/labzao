@@ -106,6 +106,7 @@ var stageState = {
         this.player.animations.add("parado", [4], 1, true);
         this.player.animations.add("direita", [5, 6, 7], 12, true);
         this.player.animations.play("parado");
+        
 
         // Estamos criando um atributo novo (o JavaScript permite isso)
         this.player.body.velocidadeAntiga = 0;
