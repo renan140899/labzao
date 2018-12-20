@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, minimal-ui, shrink-to-fit=no" />
+
+  <title>Meu Joguinho</title>
+
+  <style type="text/css">
+  body {
+    background: #000;
+    padding: 0;
+    margin: 0;
+    color: #fff;
+    font: normal 14px sans-serif;
+    background-color: #800000;
+  }
+
+  canvas {
+    display: block;
+    margin: 0 auto;
+  }
+
+  @font-face {
+    font-family: 'Sun';
+    src: url('Sun.ttf');
+  }
+
+  .hidden {
+    font-family: 'Sun';
+    visibility: hidden;
+    position: absolute;
+  }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div id="divJogo"></div>
+
+
+  <script type="text/javascript" src="phaser.min.js"></script>
+  <script type="text/javascript">
+  //<![CDATA[
+  "use strict";
+
+  window.WebFontConfig = {
+    //  'active' means all requested fonts have finished loading
+    //  We set a 1 second delay before calling 'createText'.
+    //  For some reason if we don't the browser cannot render the text the first time it's created.
+    active: function() {
+      setTimeout(function() {
+        game.state.start("TelaMenu");
+      }, 1000);
+    },
+
+    //  The Google Fonts we want to load (specify as many as you like in the array)
+    google: {
+      families: ['Indie+Flower']
+    }
+
+  };
+
+
+  // https://github.com/photonstorm/phaser/blob/v2.6.2/src/core/Group.js#L2372
+  Phaser.Group.prototype.getRandomNotExists = function(startIndex, endIndex) {
+    var list = this.getAll('exists', false, startIndex, endIndex);
+    return this.game.rnd.pick(list);
+  };
+
+  // Essa não é a forma mais "profissional" de fazer, mas é a mais simples :)
+
+  // Vamos chamar a variável de game, para ficar igual ao sandbox!
+  var game = new Phaser.Game(1280, 720, Phaser.AUTO, "divJogo");
+  //Variaveis sprites
+  
+
+  function TelaInicial(game) {
+
+    this.init = function() {
+
+      game.input.maxPointers = 1;
+
+      // Deixar o jogo executando, mesmo se o browser mudar de aba?
+      game.stage.disableVisibilityChange = false;
+
+      if (game.device.desktop) {
+        // Configurações específicas para desktop
+
+        // Como criamos o CSS acima, não precisamos centralizar via código
+        game.scale.pageAlignHorizontally = false;
+      } else {
+        // Configurações específicas para celulares
+
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        // Especifica o tamanho mímino e máximo para a área do jogo (de 400x300 até 800x600)
+        game.scale.setMinMax(400, 300, 1280, 720);
+        game.scale.forceLandscape = true;
+        // Como criamos o CSS acima, não precisamos centralizar via código
+        game.scale.pageAlignHorizontally = false;
+      }
+
+    }
+
+    this.preload = function() {
+        
+        game.load.crossOrigin = "anonymous";
+        game.load.spritesheet('bg', 'Sprites/Caca_cenario.png', 6400, 720);
+        game.load.image('colisor', 'Sprites/colisor.png', 1280, 25);
+        game.load.spritesheet("player", "Sprites/player.png", 32, 48);
+        game.load.image('facebook', "Sprites/Asset_facebook.png");
+        game.load.image('netflix', "Sprites/Asset_netflix.png");
+    }
+    
+        var background;
+        var player;
+        var colisor;
+    
+        var txtDistancia = 0;
+        var distancia = 0;
+        var loopDist;  
+      
+        var grupoFacebook;
+        var loopFacebook;
+      
+        var grupoNetflix;
+        var loopNetflix;
+      
+        // Variáveis pulo
+        var jaPulou = false;
+        var btnPular;
+        var jumpTimer = 0;
+      
+        var txtGameOver;
+        var txtScore;
+        var txtScoreTela;
+        var txtHighScore;
+        var txtNovoHighScore;
+        var txtRestart;
+        var txtMenu;
+      
+        var DistanciaMaior = 0;
+      
+    this.create = function() {
+        
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        
+        background = game.add.tileSprite(0, 0, 6400, 720, 'bg');
+        
+        player = game.add.sprite(50,400, "player");
+        game.physics.arcade.enable(player);
+        player.enableBody = true;
+        player.body.gravity.y = 1200;
+        player.body.collideWorldBounds = true;
+        player.animations.add("direita", [5, 6, 7, 8], 12, true);
+        player.animations.play("direita");
+        player.scale.setTo(4);
+        
+        colisor = game.add.sprite(0,620, 'colisor');
+        game.physics.enable(colisor, Phaser.Physics.ARCADE);
+        colisor.body.enable = true;
+        colisor.body.collideWorldBounds = true;
+        colisor.body.immovable = true;
+        colisor.body.gravity.y = 0;
+        colisor.alpha = 0 ;
+        
+        grupoFacebook = game.add.group();
+        grupoFacebook.enableBody = true;
+        grupoFacebook.createMultiple(5, 'facebook');
+        game.physics.arcade.enable(grupoFacebook, true);
+        
+        grupoNetflix = game.add.group();
+        grupoNetflix.enableBody = true;
+        grupoNetflix.createMultiple(5, 'netflix');
+        game.physics.arcade.enable(grupoNetflix, true);
+        
+        
+        txtDistancia = game.add.text(15, 15, 'Score: ', {
+            font: '45px Sun',
+            fill: '#fff',
+            fill: "white"
+        });
+        txtDistancia.stroke = "#000000";
+        txtDistancia.strokeThickness = 6;
+         
+
+        txtGameOver = game.add.text(game.world.centerX, -50, 'Game Over', {
+            font: '110px Sun',
+            fill: '#fff'
+        });
+        txtGameOver.anchor.set(0.5);
+        txtGameOver.stroke = "#000000";
+        txtGameOver.strokeThickness = 6;
+        
+
+        txtNovoHighScore = game.add.text(-500, 300, 'Nova distancia maxima!!', {
+            font: '50px Sun',
+            fill: '#fff'
+        });
+        txtNovoHighScore.anchor.set(0.5);
+        txtNovoHighScore.stroke = "#000000";
+        txtNovoHighScore.strokeThickness = 6;
+
+        txtScoreTela = game.add.text(-300, 390, 'Distancia: 0', {
+            font: '70px Sun',
+            fill: '#fff'
+        });
+        txtScoreTela.anchor.set(0.5);
+        txtScoreTela.stroke = "#000000";
+        txtScoreTela.strokeThickness = 6;
+        
+
+        txtHighScore = game.add.text(-300, 470, 'Distancia maxima: 0', {
+            font: '40px Sun',
+            fill: '#fff'
+        });
+        txtHighScore.anchor.set(0.5);
+        txtHighScore.stroke = "#000000";
+        txtHighScore.strokeThickness = 6;
+
+        txtRestart = game.add.text(window.innerWidth + 400, 550, 'Restart', {
+            font: '45px Sun',
+            fill: '#fff'
+        });
+        txtRestart.anchor.set(.5);
+        txtRestart.inputEnabled = true;
+        txtRestart.events.onInputDown.add(retornaGame, this);
+        txtRestart.stroke = "#000000";
+        txtRestart.strokeThickness = 6;
+
+        txtMenu = game.add.text(window.innerWidth + 400, 600, 'Menu', {
+            font: '40px Sun',
+            fill: '#fff'
+        });
+        txtMenu.anchor.set(.5);
+        txtMenu.inputEnabled = true;
+        txtMenu.events.onInputDown.add(backMenu, this);
+        txtMenu.stroke = "#000000";
+        txtMenu.strokeThickness = 6;
+        
+        
+        
+        btnPular = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
+        
+        restart();
+    }
+    
+    function backMenu(){
+        
+        game.state.start('TelaMenu');
+    }
+
+    this.update = function() {
+        
+        var lista = grupoFacebook.getAll('exists', true);
+        for (var i = 0; i < lista.length; i++) {
+            if (lista[i].body.y > 300) {
+                lista[i].outOfBoundsKill = true;
+                lista[i].checkWorldBounds = true;
+            }
+        }
+        
+        var lista2 = grupoNetflix.getAll('exists', true);
+        for (var i = 0; i < lista2.length; i++) {
+            if (lista2[i].body.y > 300) {
+                lista2[i].outOfBoundsKill = true;
+                lista2[i].checkWorldBounds = true;
+            }
+        }
+        
+        
+        
+        game.physics.arcade.collide(player, colisor);
+        game.physics.arcade.overlap(player, [grupoFacebook,grupoNetflix], collisionHandler, null, this);
+        
+        background.tilePosition.x -= 10;
+        
+        if (btnPular.isDown && player.body.touching.down && game.time.now > jumpTimer){
+            player.body.velocity.y = -700;
+            jumpTimer = game.time.now + 750;
+        }
+        
+    }
+    
+    function contaDistancia() {
+        
+        distancia++;
+        
+        txtDistancia.setText("Score: " + distancia);
+        
+    }
+    
+    function collisionHandler(player, icone){
+        player.kill();
+        
+        game.time.events.remove(contaDistancia);
+        game.time.events.remove(liberaFacebook);
+        game.time.events.remove(liberaNetflix);
+        
+        game.add.tween(txtGameOver).to({ y: 150 }, 500).start();
+        game.add.tween(txtScoreTela).to({ x: game.world.centerX }, 500).start();
+        game.add.tween(txtHighScore).to({ x: game.world.centerX }, 500).start();
+        game.add.tween(txtRestart).to({ x: game.world.centerX }, 500).start();
+        game.add.tween(txtMenu).to({ x: game.world.centerX }, 500).start();
+        
+        txtGameOver.setText("Game Over");
+        txtNovoHighScore.setText("Novo recorde!!!");
+        txtRestart.setText("Restart");
+        txtMenu.setText("Menu");
+        txtScoreTela.setText("Distancia: " + distancia);
+        txtHighScore.setText("Distancia Maxima: " + DistanciaMaior);
+        
+        if (distancia > DistanciaMaior) {
+            
+            DistanciaMaior = distancia;
+            txtHighScore.setText("Distancia maxima: " + DistanciaMaior);           
+            game.add.tween(txtNovoHighScore).to({ x: game.world.centerX }, 500).start();
+        }
+        
+    }
+      
+      //1320,Math.random() * (720 - 0) + 0
+    function liberaFacebook(){
+        
+        var facebook = grupoFacebook.getRandomNotExists();
+        if (!facebook) {
+            facebook = grupoFacebook.create(1320,550, 'facebook');
+            facebook.outOfBoundsKill = false;
+            facebook.checkWorldBounds = false;
+        } else {
+            facebook.outOfBoundsKill = false;
+            facebook.checkWorldBounds = false;
+            facebook.reset(1320,550);
+        }
+            facebook.physicsBodyType = Phaser.Physics.ARCADE;
+            facebook.body.enable = true;
+            facebook.body.velocity.x = -550;
+            facebook.anchor.x = 0.5;
+            facebook.anchor.y = 0.5;
+            facebook.scale.setTo(0.2);
+            facebook.body.setSize(50,50,50,50);
+    }
+      
+    function liberaNetflix(){
+        
+        var netflix = grupoNetflix.getRandomNotExists();
+        if (!netflix) {
+            netflix = grupoNetflix.create(1320,380, 'netflix');
+            netflix.outOfBoundsKill = false;
+            netflix.checkWorldBounds = false;
+        } else {
+            netflix.outOfBoundsKill = false;
+            netflix.checkWorldBounds = false;
+            netflix.reset(1320,380);
+        }
+            netflix.physicsBodyType = Phaser.Physics.ARCADE;
+            netflix.body.enable = true;
+            netflix.body.velocity.x = -550;
+            netflix.anchor.x = 0.5;
+            netflix.anchor.y = 0.5;
+            netflix.scale.setTo(0.2);
+            netflix.body.setSize(50,50,50,50);
+    }
+      
+    function retornaGame(){
+        
+        game.state.start('TelaInicial');
+    }
+      
+    function restart(){
+        
+        player.revive();
+        distancia = 0;
+        
+        loopDist = game.time.events.loop(100, contaDistancia, this);
+        loopFacebook = game.time.events.loop(1800, liberaFacebook, this);
+        loopNetflix = game.time.events.loop(4250, liberaNetflix, this);
+        
+    }
+      
+
+  }
+      
+  function TelaMenu(game) {
+
+    this.init = function() {
+
+      game.input.maxPointers = 1;
+
+      // Deixar o jogo executando, mesmo se o browser mudar de aba?
+      game.stage.disableVisibilityChange = false;
+
+      if (game.device.desktop) {
+        // Configurações específicas para desktop
+
+        // Como criamos o CSS acima, não precisamos centralizar via código
+        game.scale.pageAlignHorizontally = false;
+      } else {
+        // Configurações específicas para celulares
+
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        // Especifica o tamanho mímino e máximo para a área do jogo (de 400x300 até 800x600)
+        game.scale.setMinMax(400, 300, 1280, 720);
+        game.scale.forceLandscape = true;
+        // Como criamos o CSS acima, não precisamos centralizar via código
+        game.scale.pageAlignHorizontally = false;
+      }
+
+    }
+
+    this.preload = function() {
+        
+        game.load.crossOrigin = "anonymous";
+        game.load.image('Fundo', 'Sprites/Menu.png',1280,720);
+
+    }
+    
+    var txtLogo;
+    var txtJogar;
+    var txtUm;
+    var txtDois;
+    
+    this.create = function() {
+        
+        var fundo = game.add.sprite(0,0, 'Fundo');
+        
+        txtLogo = game.add.text(-200, 340, '', {
+            font: '110px Sun',
+            fill: '#fff'
+        });
+        txtLogo.anchor.set(0.5);
+        txtLogo.stroke = "#000000";
+        txtLogo.strokeThickness = 6;
+        game.add.tween(txtLogo).to({ x: game.world.centerX }, 500).start();
+        
+        txtJogar = game.add.text(1480, 440, '', {
+            font: '60px Sun',
+            fill: '#fff'
+        });
+        txtJogar.anchor.set(0.5);
+        txtJogar.stroke = "#000000";
+        txtJogar.strokeThickness = 6;
+        txtJogar.inputEnabled = true;
+        txtJogar.events.onInputDown.add(play, this);
+        game.add.tween(txtJogar).to({ x: game.world.centerX }, 500).start();
+        
+        txtUm = game.add.text(-200, 520, '', {
+            font: '30px Sun',
+            fill: '#fff'
+        });
+        txtUm.anchor.set(0.5);
+        txtUm.stroke = "#000000";
+        txtUm.strokeThickness = 6;
+        game.add.tween(txtUm).to({ x: game.world.centerX }, 500).start();
+        
+        txtDois = game.add.text(1480, 560, '', {
+            font: '30px Sun',
+            fill: '#fff'
+        });
+        txtDois.anchor.set(0.5);
+        txtDois.stroke = "#000000";
+        txtDois.strokeThickness = 6;
+        game.add.tween(txtDois).to({ x: game.world.centerX }, 500).start();
+        
+    }
+    
+    function play(){
+        
+        game.state.start('TelaInicial');
+    }
+
+    this.update = function() {
+        
+        txtLogo.setText("TechRun");
+        txtJogar.setText("Jogar");
+        txtUm.setText("Arraste para cima para pular");
+        txtDois.setText("Arraste para baixo para agachar");
+        }
+        
+    }
+
+  game.state.add("TelaInicial", TelaInicial);
+  game.state.add("TelaMenu", TelaMenu);
+  //]]>
+
+  </script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+</body>
+
+</html>
