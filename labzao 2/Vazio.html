@@ -113,8 +113,14 @@
         game.load.spritesheet('bg', 'Sprites/Caca_cenario.png', 6400, 720);
         game.load.image('colisor', 'Sprites/colisor.png', 1280, 25);
         game.load.spritesheet("player", "Sprites/player.png", 32, 48);
+        game.load.spritesheet("player2", "Sprites/sprite.png", 282, 281);
         game.load.image('facebook', "Sprites/Asset_facebook.png");
         game.load.image('netflix', "Sprites/Asset_netflix.png");
+        game.load.image('youtube', "Sprites/Asset_youtube.png");
+        game.load.image('instagram', "Sprites/Asset_instagram.png");
+        game.load.image('whatsapp', "Sprites/Asset_whatsapp.png");
+        game.load.image('btnUp', "Sprites/btnUp.png");
+        game.load.image('btnDown', "Sprites/btnDown.png");
     }
     
         var background;
@@ -125,15 +131,22 @@
         var distancia = 0;
         var loopDist;  
       
+        
+        var loopLiberacao;
+        
         var grupoFacebook;
-        var loopFacebook;
-      
         var grupoNetflix;
-        var loopNetflix;
+        var grupoInstagram;
+        var grupoWhatsApp;
+        var grupoYoutube;
+      
+        var btnDown, btnDownDown = false;
+        var btnUp;
       
         // Variáveis pulo
-        var jaPulou = false;
+        var jaPulou = false, agachando = false;
         var btnPular;
+        var btnAgachar;
         var jumpTimer = 0;
       
         var txtGameOver;
@@ -153,14 +166,17 @@
         
         background = game.add.tileSprite(0, 0, 6400, 720, 'bg');
         
-        player = game.add.sprite(50,400, "player");
+        player = game.add.sprite(50,300, "player2");
         game.physics.arcade.enable(player);
         player.enableBody = true;
-        player.body.gravity.y = 1200;
+        player.body.gravity.y = 1550;
         player.body.collideWorldBounds = true;
-        player.animations.add("direita", [5, 6, 7, 8], 12, true);
-        player.animations.play("direita");
-        player.scale.setTo(4);
+        player.animations.add("correr", [1,2,3,4,5,6], 12, true);
+        player.animations.add("pular", [7,8,9], 12, false);
+        player.animations.add("agachar", [0], 12, true);
+        player.animations.play("correr");
+        player.scale.setTo(0.8);
+        player.body.setSize(137,281,63,0);
         
         colisor = game.add.sprite(0,620, 'colisor');
         game.physics.enable(colisor, Phaser.Physics.ARCADE);
@@ -169,6 +185,8 @@
         colisor.body.immovable = true;
         colisor.body.gravity.y = 0;
         colisor.alpha = 0 ;
+        
+        
         
         grupoFacebook = game.add.group();
         grupoFacebook.enableBody = true;
@@ -180,6 +198,30 @@
         grupoNetflix.createMultiple(5, 'netflix');
         game.physics.arcade.enable(grupoNetflix, true);
         
+        grupoInstagram = game.add.group();
+        grupoInstagram.enableBody = true;
+        grupoInstagram.createMultiple(5, 'instagram');
+        game.physics.arcade.enable(grupoInstagram, true);
+        
+        grupoWhatsApp = game.add.group();
+        grupoWhatsApp.enableBody = true;
+        grupoWhatsApp.createMultiple(5, 'whatsapp');
+        game.physics.arcade.enable(grupoWhatsApp, true);
+        
+        grupoYoutube = game.add.group();
+        grupoYoutube.enableBody = true;
+        grupoYoutube.createMultiple(5, 'youtube');
+        game.physics.arcade.enable(grupoYoutube, true);
+        
+        btnUp = game.add.sprite(50,480, 'btnUp');
+        btnUp.scale.setTo(0.4);
+        btnUp.inputEnabled = true;
+        btnUp.alpha = 0.8;
+        
+        btnDown = game.add.sprite(50,600, 'btnDown');
+        btnDown.scale.setTo(0.4);
+        btnDown.inputEnabled = true;
+        btnDown.alpha = 0.8;
         
         txtDistancia = game.add.text(15, 15, 'Score: ', {
             font: '45px Sun',
@@ -246,15 +288,47 @@
         
         
         
-        btnPular = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
+        btnPular   = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
+        btnAgachar = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         
+        btnUp.events.onInputDown.add(pular, this);
+        btnDown.events.onInputDown.add(agachar, this);
+        btnDown.events.onInputUp.add(pararAgachar, this);
         restart();
+    }
+    
+    function pular() {
+        if (!jaPulou && !agachando) {
+            player.body.velocity.y = -800;
+            player.animations.play("pular");
+            jaPulou = true;
+        }
+    }
+    
+    function agachar() {
+        btnDownDown = true;
+        if (!jaPulou && !agachando) {
+            player.animations.play("agachar");
+            agachando = true;
+            player.body.setSize(137,212,63,69);
+        }
+    }
+    
+    function pararAgachar() {
+        btnDownDown = false;
     }
     
     function backMenu(){
         
         game.state.start('TelaMenu');
     }
+      
+    this.render = function() {
+
+        //game.debug.body(player);
+
+    }
+
 
     this.update = function() {
         
@@ -274,18 +348,56 @@
             }
         }
         
+        var lista3 = grupoInstagram.getAll('exists', true);
+        for (var i = 0; i < lista3.length; i++) {
+            if (lista3[i].body.y > 300) {
+                lista3[i].outOfBoundsKill = true;
+                lista3[i].checkWorldBounds = true;
+            }
+        }
+        
+        var lista4 = grupoWhatsApp.getAll('exists', true);
+        for (var i = 0; i < lista4.length; i++) {
+            if (lista4[i].body.y > 300) {
+                lista4[i].outOfBoundsKill = true;
+                lista4[i].checkWorldBounds = true;
+            }
+        }
+        
+        var lista5 = grupoYoutube.getAll('exists', true);
+        for (var i = 0; i < lista5.length; i++) {
+            if (lista5[i].body.y > 300) {
+                lista5[i].outOfBoundsKill = true;
+                lista5[i].checkWorldBounds = true;
+            }
+        }
+        
         
         
         game.physics.arcade.collide(player, colisor);
-        game.physics.arcade.overlap(player, [grupoFacebook,grupoNetflix], collisionHandler, null, this);
+        game.physics.arcade.overlap(player, [grupoFacebook,grupoNetflix,grupoInstagram,grupoYoutube,grupoWhatsApp], collisionHandler, null, this);
         
         background.tilePosition.x -= 10;
-        
-        if (btnPular.isDown && player.body.touching.down && game.time.now > jumpTimer){
-            player.body.velocity.y = -700;
-            jumpTimer = game.time.now + 750;
+      
+        if (!jaPulou && !agachando) {
+            if (btnPular.isDown) {
+                player.body.velocity.y = -850;
+                player.animations.play("pular");
+                jaPulou = true;
+            } else if (btnAgachar.isDown){
+                player.animations.play("agachar");
+                agachando = true;
+            }
+        } else {
+            if (agachando && !btnAgachar.isDown && !btnDownDown) {
+                player.animations.play("correr");
+                agachando = false;
+                player.body.setSize(137,281,63,0);
+            } else if (jaPulou && player.body.touching.down) {
+                player.animations.play("correr");
+                jaPulou = false;
+            }
         }
-        
     }
     
     function contaDistancia() {
@@ -296,12 +408,15 @@
         
     }
     
+      
     function collisionHandler(player, icone){
         player.kill();
+        btnUp.kill();
+        btnDown.kill();
+        txtDistancia.kill();
         
-        game.time.events.remove(contaDistancia);
-        game.time.events.remove(liberaFacebook);
-        game.time.events.remove(liberaNetflix);
+        game.time.events.remove(loopDist);
+        game.time.events.remove(libera);
         
         game.add.tween(txtGameOver).to({ y: 150 }, 500).start();
         game.add.tween(txtScoreTela).to({ x: game.world.centerX }, 500).start();
@@ -324,8 +439,22 @@
         }
         
     }
+
+    function libera() {
+        var valor = Math.random();
+        if (valor <= 0.2) {
+            liberaFacebook();
+        } else if(valor > 0.2 && valor <= 0.4) {
+            liberaNetflix();
+        } else if(valor > 0.4 && valor <= 0.6) {
+            liberaInstagram();
+        }else if(valor > 0.6 && valor <= 0.8) {
+            liberaWhatsApp();
+        }else {
+            liberaYoutube();
+        }
+    }  
       
-      //1320,Math.random() * (720 - 0) + 0
     function liberaFacebook(){
         
         var facebook = grupoFacebook.getRandomNotExists();
@@ -344,20 +473,20 @@
             facebook.anchor.x = 0.5;
             facebook.anchor.y = 0.5;
             facebook.scale.setTo(0.2);
-            facebook.body.setSize(50,50,50,50);
+            facebook.body.setCircle(50,50,80);
     }
       
     function liberaNetflix(){
         
         var netflix = grupoNetflix.getRandomNotExists();
         if (!netflix) {
-            netflix = grupoNetflix.create(1320,380, 'netflix');
+            netflix = grupoNetflix.create(1320,400, 'netflix');
             netflix.outOfBoundsKill = false;
             netflix.checkWorldBounds = false;
         } else {
             netflix.outOfBoundsKill = false;
             netflix.checkWorldBounds = false;
-            netflix.reset(1320,380);
+            netflix.reset(1320,400);
         }
             netflix.physicsBodyType = Phaser.Physics.ARCADE;
             netflix.body.enable = true;
@@ -365,7 +494,70 @@
             netflix.anchor.x = 0.5;
             netflix.anchor.y = 0.5;
             netflix.scale.setTo(0.2);
-            netflix.body.setSize(50,50,50,50);
+            netflix.body.setCircle(50,50,50);
+    }
+      
+    function liberaInstagram(){
+        
+        var instagram = grupoInstagram.getRandomNotExists();
+        if (!instagram) {
+            instagram = grupoInstagram.create(1320,550, 'instagram');
+            instagram.outOfBoundsKill = false;
+            instagram.checkWorldBounds = false;
+        } else {
+            instagram.outOfBoundsKill = false;
+            instagram.checkWorldBounds = false;
+            instagram.reset(1320,550);
+        }
+            instagram.physicsBodyType = Phaser.Physics.ARCADE;
+            instagram.body.enable = true;
+            instagram.body.velocity.x = -550;
+            instagram.anchor.x = 0.5;
+            instagram.anchor.y = 0.5;
+            instagram.scale.setTo(0.2);
+            instagram.body.setCircle(50,50,50);
+    }
+      
+    function liberaWhatsApp(){
+        
+        var whatsapp = grupoWhatsApp.getRandomNotExists();
+        if (!whatsapp) {
+            whatsapp = grupoWhatsApp.create(1320,400, 'whatsapp');
+            whatsapp.outOfBoundsKill = false;
+            whatsapp.checkWorldBounds = false;
+        } else {
+            whatsapp.outOfBoundsKill = false;
+            whatsapp.checkWorldBounds = false;
+            whatsapp.reset(1320,550);
+        }
+            whatsapp.physicsBodyType = Phaser.Physics.ARCADE;
+            whatsapp.body.enable = true;
+            whatsapp.body.velocity.x = -550;
+            whatsapp.anchor.x = 0.5;
+            whatsapp.anchor.y = 0.5;
+            whatsapp.scale.setTo(0.2);
+            whatsapp.body.setCircle(50,50,50);
+    }
+      
+    function liberaYoutube(){
+        
+        var youtube = grupoYoutube.getRandomNotExists();
+        if (!youtube) {
+            youtube = grupoYoutube.create(1320,400, 'youtube');
+            youtube.outOfBoundsKill = false;
+            youtube.checkWorldBounds = false;
+        } else {
+            youtube.outOfBoundsKill = false;
+            youtube.checkWorldBounds = false;
+            youtube.reset(1320,400);
+        }
+            youtube.physicsBodyType = Phaser.Physics.ARCADE;
+            youtube.body.enable = true;
+            youtube.body.velocity.x = -550;
+            youtube.anchor.x = 0.5;
+            youtube.anchor.y = 0.5;
+            youtube.scale.setTo(0.2);
+            youtube.body.setCircle(50,50,50);
     }
       
     function retornaGame(){
@@ -376,14 +568,15 @@
     function restart(){
         
         player.revive();
+        btnDown.revive();
+        btnUp.revive();
+        txtDistancia.revive();
         distancia = 0;
         
         loopDist = game.time.events.loop(100, contaDistancia, this);
-        loopFacebook = game.time.events.loop(1800, liberaFacebook, this);
-        loopNetflix = game.time.events.loop(4250, liberaNetflix, this);
+        loopLiberacao = game.time.events.loop(1000, libera, this);
         
     }
-      
 
   }
       
